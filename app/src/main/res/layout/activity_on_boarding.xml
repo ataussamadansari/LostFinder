@@ -28,12 +28,22 @@
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
+    <View
+        android:id="@+id/view3"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
+        android:background="@drawable/circle_2"
+        android:scaleX="2.5"
+        android:scaleY="2.5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/circleImageView"
         android:layout_width="@dimen/_120sdp"
         android:layout_height="@dimen/_120sdp"
         android:src="@drawable/girl_illus"
-        app:civ_border_color="@color/dark_green"
+        app:civ_border_color="@color/white"
         app:civ_border_width="@dimen/_2sdp"
         app:civ_circle_background_color="@color/white"
         app:layout_constraintEnd_toStartOf="@+id/view"
@@ -67,12 +77,12 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_12sdp"
         android:ems="4"
         android:text="Let's Get Started"
         android:textColor="@color/black"
         android:textSize="@dimen/_30ssp"
         android:textStyle="bold"
-        android:layout_marginBottom="@dimen/_12sdp"
         app:layout_constraintBottom_toTopOf="@+id/appCompatTextView2"
         app:layout_constraintStart_toStartOf="@+id/appCompatTextView2" />
 
@@ -80,11 +90,11 @@
         android:id="@+id/appCompatTextView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_12sdp"
         android:layout_marginBottom="@dimen/_12sdp"
         android:ems="15"
-        android:layout_marginStart="@dimen/_12sdp"
         android:text="Discover a smarter way to find what's lost and keep what matters safe."
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_primary"
         app:layout_constraintBottom_toTopOf="@+id/start_now_btn"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -92,15 +102,15 @@
         android:id="@+id/start_now_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_12sdp"
         android:background="@drawable/login_btn_bg"
         android:ems="12"
         android:text="Start Now"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="@dimen/_14ssp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/view3" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

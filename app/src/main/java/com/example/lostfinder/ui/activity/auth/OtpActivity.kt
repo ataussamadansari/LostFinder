@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.lostfinder.R
 import com.example.lostfinder.databinding.ActivityOtpBinding
 import com.example.lostfinder.ui.activity.MainActivity
+import com.example.lostfinder.utils.PrefManager
 
 class OtpActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOtpBinding
@@ -28,10 +29,13 @@ class OtpActivity : AppCompatActivity() {
             insets
         }
 
+        val pref = PrefManager(this)
+
         setupOtpInputs()
 
         binding.verifyOtpBtn.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+            pref.clearAll()
         }
 
     }
