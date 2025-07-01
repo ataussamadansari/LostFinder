@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FF000000</color>
+    <color name="black">#FFFFFFFF</color>
+    <color name="dark_green">#4CAF50</color>
+    <color name="orange">#FF9800</color>
+    <color name="teal">#008080</color>
+    <color name="indi_color_green">#4CAF50</color>
+    <color name="indi_color_orange">#FF9800</color>
+    <color name="indi_color_teal">#008080</color>
+    <color name="nav_line_color">#393939</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+</resources>
