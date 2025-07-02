@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.lostfinder" />
+                  <option name="mobileSdkAppId" value="1:1044990750867:android:b38620f4e547ae98121d66" />
+                  <option name="projectId" value="lost-finder-a5ee0" />
+                  <option name="projectNumber" value="1044990750867" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

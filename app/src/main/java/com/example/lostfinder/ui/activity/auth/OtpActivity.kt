@@ -29,7 +29,7 @@ class OtpActivity : AppCompatActivity() {
             insets
         }
 
-        val pref = PrefManager(this)
+//        val pref = PrefManager(this)
 
         setupOtpInputs()
 
