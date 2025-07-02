@@ -11,5 +11,6 @@
     <color name="nav_line_color">#F4F4F4</color>
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
+    <color name="red">#E57373</color>
 
 </resources>

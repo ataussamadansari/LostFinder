@@ -3,20 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:orientation="vertical"
-    android:gravity="center"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_marginStart="@dimen/_12sdp"
     android:layout_marginEnd="@dimen/_12sdp"
-    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".ui.activity.auth.AuthActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/appCompatImageView2"
         android:layout_width="@dimen/_150sdp"
         android:layout_height="@dimen/_150sdp"
-        android:src="@drawable/login_illus"
         android:scaleType="centerCrop"
+        android:src="@drawable/login_illus"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -47,10 +47,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="15"
-        android:textSize="@dimen/_11ssp"
-        android:textAlignment="center"
         android:text="We will send a text message to verify your phone number"
+        android:textAlignment="center"
         android:textColor="@color/text_secondary"
+        android:textSize="@dimen/_11ssp"
         app:layout_constraintEnd_toEndOf="@+id/appCompatImageView2"
         app:layout_constraintStart_toStartOf="@+id/appCompatImageView2"
         app:layout_constraintTop_toBottomOf="@+id/appCompatImageView2" />
@@ -60,12 +60,40 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_12sdp" />
 
-    <androidx.appcompat.widget.AppCompatEditText
+    <LinearLayout
+        android:id="@+id/phone_et_l"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:autofillHints="phone"
-        android:hint="Mobile Number" />
+        android:gravity="center"
+        android:padding="@dimen/_4sdp"
+        android:background="@drawable/phone_border_def"
+        android:orientation="horizontal">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/country_code_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_autoDetectCountry="true"
+            app:ccp_defaultNameCode="IN"
+            app:ccpDialog_textColor="@color/text_primary"
+            app:ccp_arrowColor="@color/text_primary"
+            app:ccp_contentColor="@color/text_primary"
+            app:ccp_showFlag="true"
+            app:ccp_showFullName="false"
+            app:ccp_showNameCode="false"
+            app:ccp_showPhoneCode="true" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/phone_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_8sdp"
+            android:autofillHints="phone"
+            android:background="@drawable/phone_et_bg"
+            android:hint="Mobile Number"
+            android:inputType="phone" />
+    </LinearLayout>
+
 
     <Space
         android:layout_width="wrap_content"
@@ -76,10 +104,10 @@
         android:id="@+id/send_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send OTP"
-        android:textSize="@dimen/_14ssp"
-        android:textColor="@color/white"
         android:background="@drawable/login_btn_bg"
-        android:textAllCaps="false" />
+        android:text="Send OTP"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_14ssp" />
 
 </LinearLayout>

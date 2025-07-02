@@ -32,7 +32,6 @@ class OnBoardingActivity : AppCompatActivity() {
             finish()
         }
 
-
         binding.startNowBtn.setOnClickListener {
             pref.saveOnBoarding("onBoarding", true)
             startActivity(Intent(this, AuthActivity::class.java))

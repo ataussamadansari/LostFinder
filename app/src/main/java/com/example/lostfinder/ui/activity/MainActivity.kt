@@ -2,6 +2,7 @@ package com.example.lostfinder.ui.activity
 
 import android.os.Bundle
 import android.transition.TransitionManager
+import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import com.example.lostfinder.databinding.CustomBottomNavBinding
 import com.example.lostfinder.ui.fragment.HomeFragment
 import com.example.lostfinder.ui.fragment.ProfileFragment
 import com.example.lostfinder.ui.fragment.ScanFragment
+import com.example.lostfinder.utils.PrefManager
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavBinding: CustomBottomNavBinding
 
     private var isCurrentTab: String = "home"
+
+    val TAG = "mainActivityTAG"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +38,11 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val pref = PrefManager(this)
+
+        Log.d(TAG, "${pref.getNumber("phoneNo")}")
+
 
         val bottomNav = findViewById<View>(R.id.bottomNav)
         bottomNavBinding = CustomBottomNavBinding.bind(bottomNav)
@@ -63,6 +72,8 @@ class MainActivity : AppCompatActivity() {
                 isCurrentTab = "profile"
                 navText(bottomNavBinding.profileNavText)
                 moveIndicator(R.id.profile_nav, R.color.indi_color_teal)
+                pref.clearAll()
+                Log.d(TAG, "After clear: isLogin = ${pref.checkIsLogin("isLogin")}")
             }
         }
 
