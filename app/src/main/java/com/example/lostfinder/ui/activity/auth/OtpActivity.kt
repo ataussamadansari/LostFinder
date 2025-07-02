@@ -35,7 +35,7 @@ class OtpActivity : AppCompatActivity() {
 
         binding.verifyOtpBtn.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
-            pref.clearAll()
+//            pref.clearAll()
         }
 
     }
