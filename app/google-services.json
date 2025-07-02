@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044990750867",
+    "project_id": "lost-finder-a5ee0",
+    "storage_bucket": "lost-finder-a5ee0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044990750867:android:b38620f4e547ae98121d66",
+        "android_client_info": {
+          "package_name": "com.example.lostfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_jLjmo5RcWqQnI0CZ-jWno6LAhdL5uC4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
