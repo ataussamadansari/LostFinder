@@ -1,0 +1,86 @@
+name: Deploy LostFinder to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Automated Tests & Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, sqlite3, pdo_sqlite, zip, bcmath
+          coverage: none
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Prepare Laravel Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Execute Feature & Unit Tests
+        run: php artisan test
+
+  deploy:
+    name: Deploy to Hostinger via SSH
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Hostinger Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          script_stop: true
+          script: |
+            cd ${{ secrets.HOSTINGER_PROJECT_PATH }}
+            echo "🚀 Starting LostFinder deployment on Hostinger..."
+            
+            echo "1. Pulling latest commits from GitHub main branch..."
+            git pull origin main
+            
+            echo "2. Installing optimized production dependencies..."
+            composer install --no-dev --optimize-autoloader --no-interaction
+            
+            echo "3. Running database migrations..."
+            php artisan migrate --force
+            
+            echo "4. Refreshing production caches..."
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            echo "5. Creating public storage symlink..."
+            php artisan storage:link || true
+            
+            echo "✅ LostFinder successfully deployed on Hostinger!"
