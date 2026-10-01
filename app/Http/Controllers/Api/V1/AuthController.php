@@ -144,11 +144,17 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token', [$user->role])->plainTextToken;
 
+        $freshUser = $user->fresh()->load(['driverProfile', 'passenger']);
+
         return response()->json([
             'status'  => true,
             'message' => 'Login successful',
             'token'   => $token,
-            'user'    => $user->fresh()->load(['driverProfile', 'passenger']),
+            'user'    => $freshUser,
+            'data'    => [
+                'token' => $token,
+                'user'  => $freshUser,
+            ],
         ]);
     }
 
