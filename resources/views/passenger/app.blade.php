@@ -70,19 +70,22 @@
             padding-bottom: env(safe-area-inset-bottom, 0.75rem);
         }
     </style>
+    <script>
+        window.lostFinderConfig = {
+            categories: @json($categories),
+            promotions: @json($promotions),
+            serverConfig: @json($serverConfig),
+            emergencyContacts: {
+                police: '{{ $policeNumber }}',
+                tourist: '{{ $touristHelpline }}',
+                support: '{{ $supportPhone }}'
+            },
+            scannedDriver: @json($scannedDriver)
+        };
+    </script>
 </head>
 <body class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white"
-      x-data="lostFinderApp({
-          categories: @json($categories),
-          promotions: @json($promotions),
-          serverConfig: @json($serverConfig),
-          emergencyContacts: {
-              police: '{{ $policeNumber }}',
-              tourist: '{{ $touristHelpline }}',
-              support: '{{ $supportPhone }}'
-          },
-          scannedDriver: @json($scannedDriver)
-      })"
+      x-data="lostFinderApp(window.lostFinderConfig)"
       x-init="initApp()">
 
     <!-- Responsive Container -->
