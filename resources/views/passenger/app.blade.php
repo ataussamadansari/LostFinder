@@ -42,8 +42,8 @@
     <!-- QR Code Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-    <!-- Dedicated Modular Alpine.js Application Logic -->
-    <script src="/js/passenger/app.js"></script>
+    <!-- Dedicated Inline Scripts Partial (100% immune to 404 static file errors) -->
+    @include('passenger.partials.scripts')
 
     <!-- Alpine.js Core CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
@@ -75,6 +75,7 @@
       x-data="lostFinderApp({
           categories: @json($categories),
           promotions: @json($promotions),
+          serverConfig: @json($serverConfig),
           emergencyContacts: {
               police: '{{ $policeNumber }}',
               tourist: '{{ $touristHelpline }}',
@@ -82,11 +83,18 @@
           },
           scannedDriver: @json($scannedDriver)
       })"
-      x-init="initApp()"
-      x-cloak>
+      x-init="initApp()">
 
     <!-- Responsive Container -->
     <div class="min-h-screen bg-slate-950 flex flex-col relative pb-24 md:pb-8">
+
+        <!-- Server-Driven Maintenance Banner (If Enabled by Admin) -->
+        <template x-if="serverConfig?.maintenance?.is_active">
+            <div class="bg-amber-600/20 border-b border-amber-500/40 px-4 py-2.5 text-center text-xs sm:text-sm text-amber-200 font-semibold flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                <span x-text="serverConfig?.maintenance?.message || 'LostFinder is currently undergoing scheduled maintenance.'"></span>
+            </div>
+        </template>
 
         <!-- 1. Modular Header -->
         @include('passenger.partials.header')
@@ -117,6 +125,7 @@
         @include('passenger.partials.modals.otp-success-modal')
         @include('passenger.partials.modals.sos-drawer')
         @include('passenger.partials.modals.auth-modal')
+        @include('passenger.partials.modals.profile-modal')
 
         <!-- Toast Notifications -->
         @include('passenger.partials.toast')

@@ -60,10 +60,13 @@
             <!-- User Auth Info / Login -->
             <template x-if="auth.token">
                 <div class="flex items-center space-x-2">
-                    <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs">
+                    <button @click="openProfileModal()"
+                            class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-xs transition cursor-pointer"
+                            title="Manage Tourist Profile">
                         <i class="fa-solid fa-user-circle text-indigo-400 text-sm"></i>
-                        <span class="font-medium text-slate-300" x-text="auth.user?.name || auth.user?.phone || 'Tourist'"></span>
-                    </div>
+                        <span class="font-medium text-slate-200" x-text="auth.user?.name || auth.user?.phone || 'My Profile'"></span>
+                        <i class="fa-solid fa-gear text-slate-400 text-[10px]"></i>
+                    </button>
                     <button @click="logout()"
                             class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/80 text-slate-300 flex items-center justify-center hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/40 text-xs transition"
                             title="Sign Out">
