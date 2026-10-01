@@ -53,6 +53,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Validate Deployment Secrets
+        run: |
+          echo "🔍 Verifying required deployment secrets..."
+          MISSING=0
+          if [ -z "${{ secrets.HOSTINGER_SSH_HOST }}" ]; then
+            echo "::error::Missing Secret: HOSTINGER_SSH_HOST"
+            MISSING=1
+          fi
+          if [ -z "${{ secrets.HOSTINGER_SSH_USER }}" ]; then
+            echo "::error::Missing Secret: HOSTINGER_SSH_USER"
+            MISSING=1
+          fi
+          if [ -z "${{ secrets.HOSTINGER_SSH_PASSWORD }}" ] && [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+            echo "::error::Missing Secret: Provide either HOSTINGER_SSH_PASSWORD or HOSTINGER_SSH_KEY"
+            MISSING=1
+          fi
+          if [ -z "${{ secrets.HOSTINGER_PROJECT_PATH }}" ]; then
+            echo "::error::Missing Secret: HOSTINGER_PROJECT_PATH"
+            MISSING=1
+          fi
+
+          if [ $MISSING -eq 1 ]; then
+            echo "------------------------------------------------------------------"
+            echo "❌ DEPLOYMENT STOPPED: Secrets missing in GitHub Repository."
+            echo "👉 Go to: Repo -> Settings -> Secrets and variables -> Actions"
+            echo "   and add the missing repository secrets."
+            echo "------------------------------------------------------------------"
+            exit 1
+          fi
+          echo "✅ All required deployment secrets are configured!"
+
       - name: Deploy to Hostinger Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,11 +94,21 @@ jobs:
           port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
           script_stop: true
           script: |
-            cd ${{ secrets.HOSTINGER_PROJECT_PATH }}
+            cd "${{ secrets.HOSTINGER_PROJECT_PATH }}"
             echo "🚀 Starting LostFinder deployment on Hostinger..."
             
-            echo "1. Pulling latest commits from GitHub main branch..."
-            git pull origin main
+            echo "1. Checking git repository status..."
+            if [ ! -d ".git" ]; then
+              echo "Git repository not found in folder. Initializing..."
+              git init
+              git remote add origin https://github.com/ataussamadansari/LostFinder.git || git remote set-url origin https://github.com/ataussamadansari/LostFinder.git
+              git fetch origin main
+              git reset --hard origin/main
+              git branch -M main
+            else
+              echo "Pulling latest commits from GitHub main branch..."
+              git pull origin main
+            fi
             
             echo "2. Installing optimized production dependencies..."
             composer install --no-dev --optimize-autoloader --no-interaction
