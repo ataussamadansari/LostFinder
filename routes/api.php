@@ -3,9 +3,13 @@
 use App\Http\Controllers\Api\V1\Admin\QrAdminController;
 use App\Http\Controllers\Api\V1\Admin\VerificationController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ConversationController;
 use App\Http\Controllers\Api\V1\DriverController;
+use App\Http\Controllers\Api\V1\JourneyController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\QrPublicController;
+use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +73,59 @@ Route::prefix('v1')->group(function () {
             Route::post('/vehicles/{uuid}/documents', [VehicleController::class, 'uploadDocument']);
             Route::post('/vehicles/{uuid}/assign-active', [VehicleController::class, 'assignActive']);
             Route::post('/vehicles/{uuid}/end-assignment', [VehicleController::class, 'endAssignment']);
+        });
+
+        // --------------------------------------------------------------------
+        // Journey Track: Ephemeral Connections & Lifecycle
+        // --------------------------------------------------------------------
+        Route::prefix('journeys')->group(function () {
+            Route::post('/', [JourneyController::class, 'start']);
+            Route::get('/current', [JourneyController::class, 'current']);
+            Route::post('/connect', [JourneyController::class, 'connect']);
+            Route::get('/{uuid}', [JourneyController::class, 'show']);
+            Route::post('/{uuid}/complete', [JourneyController::class, 'complete']);
+            Route::post('/{uuid}/cancel', [JourneyController::class, 'cancel']);
+            Route::post('/{uuid}/disconnect', [JourneyController::class, 'disconnect']);
+            Route::post('/{uuid}/share-details', [JourneyController::class, 'shareDetails']);
+            Route::get('/{uuid}/passengers', [JourneyController::class, 'passengers']);
+        });
+
+        // --------------------------------------------------------------------
+        // Lost Item Tickets & Recovery Workflow
+        // --------------------------------------------------------------------
+        Route::prefix('tickets')->group(function () {
+            Route::get('/', [TicketController::class, 'index']);
+            Route::post('/', [TicketController::class, 'store']);
+            Route::get('/{ticketNumber}', [TicketController::class, 'show']);
+            Route::post('/{ticketNumber}/searching', [TicketController::class, 'searching']);
+            Route::post('/{ticketNumber}/found', [TicketController::class, 'found']);
+            Route::post('/{ticketNumber}/not-found', [TicketController::class, 'notFound']);
+            Route::post('/{ticketNumber}/handover/driver', [TicketController::class, 'driverHandover']);
+            Route::post('/{ticketNumber}/handover/passenger', [TicketController::class, 'passengerReceipt']);
+            Route::post('/{ticketNumber}/cancel', [TicketController::class, 'cancel']);
+            Route::post('/{ticketNumber}/dispute', [TicketController::class, 'dispute']);
+            Route::post('/{ticketNumber}/escalate', [TicketController::class, 'escalate']);
+            Route::post('/{ticketNumber}/resolve', [TicketController::class, 'resolve']);
+        });
+
+        // --------------------------------------------------------------------
+        // Realtime Conversations & Messaging
+        // --------------------------------------------------------------------
+        Route::prefix('conversations')->group(function () {
+            Route::get('/', [ConversationController::class, 'index']);
+            Route::get('/{uuid}', [ConversationController::class, 'show']);
+            Route::get('/{uuid}/messages', [ConversationController::class, 'messages']);
+            Route::post('/{uuid}/messages', [ConversationController::class, 'storeMessage']);
+            Route::post('/{uuid}/read', [ConversationController::class, 'markRead']);
+        });
+
+        // --------------------------------------------------------------------
+        // In-App Notifications Center
+        // --------------------------------------------------------------------
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::post('/read-all', [NotificationController::class, 'markAllRead']);
+            Route::post('/{id}/read', [NotificationController::class, 'markRead']);
         });
 
         // --------------------------------------------------------------------
