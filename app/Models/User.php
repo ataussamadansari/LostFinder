@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
@@ -154,5 +156,17 @@ class User extends Authenticatable
     public function hasPermission(string $permission): bool
     {
         return app(\App\Services\PermissionService::class)->hasPermission($this, $permission);
+    }
+
+    /**
+     * Determine if the user can access the Filament panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin') {
+            return $this->isAdmin() && $this->status === 'active';
+        }
+
+        return false;
     }
 }
