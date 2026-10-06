@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AuditLogAdminController;
 use App\Http\Controllers\Api\V1\Admin\QrAdminController;
+use App\Http\Controllers\Api\V1\Admin\ReportAdminController;
 use App\Http\Controllers\Api\V1\Admin\VerificationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ConversationController;
@@ -9,6 +11,9 @@ use App\Http\Controllers\Api\V1\JourneyController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\QrPublicController;
+use App\Http\Controllers\Api\V1\RatingController;
+use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SafetyController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\VehicleController;
 use Illuminate\Support\Facades\Route;
@@ -129,6 +134,32 @@ Route::prefix('v1')->group(function () {
         });
 
         // --------------------------------------------------------------------
+        // Ratings & Reviews
+        // --------------------------------------------------------------------
+        Route::prefix('ratings')->group(function () {
+            Route::get('/', [RatingController::class, 'index']);
+            Route::post('/', [RatingController::class, 'store']);
+        });
+
+        // --------------------------------------------------------------------
+        // Incident & Fraud Reports
+        // --------------------------------------------------------------------
+        Route::prefix('reports')->group(function () {
+            Route::get('/', [ReportController::class, 'index']);
+            Route::post('/', [ReportController::class, 'store']);
+            Route::get('/{id}', [ReportController::class, 'show']);
+        });
+
+        // --------------------------------------------------------------------
+        // User Safety & Blocking
+        // --------------------------------------------------------------------
+        Route::prefix('users')->group(function () {
+            Route::get('/blocked', [SafetyController::class, 'blocked']);
+            Route::post('/{id}/block', [SafetyController::class, 'block']);
+            Route::delete('/{id}/block', [SafetyController::class, 'unblock']);
+        });
+
+        // --------------------------------------------------------------------
         // Admin Verification Track (Staff operations)
         // --------------------------------------------------------------------
         Route::prefix('admin')->middleware('role:admin')->group(function () {
@@ -187,6 +218,24 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}/logs', [QrAdminController::class, 'scanLogs'])
                     ->middleware('permission:qr.view');
             });
+
+            // ----------------------------------------------------------------
+            // Admin Incident Reports
+            // ----------------------------------------------------------------
+            Route::prefix('reports')->group(function () {
+                Route::get('/', [ReportAdminController::class, 'index'])
+                    ->middleware('permission:reports.view');
+                Route::get('/{id}', [ReportAdminController::class, 'show'])
+                    ->middleware('permission:reports.view');
+                Route::patch('/{id}', [ReportAdminController::class, 'update'])
+                    ->middleware('permission:reports.resolve');
+            });
+
+            // ----------------------------------------------------------------
+            // Admin Forensic Audit Logs
+            // ----------------------------------------------------------------
+            Route::get('/audit-logs', [AuditLogAdminController::class, 'index'])
+                ->middleware('permission:audit_logs.view');
         });
     });
 });
