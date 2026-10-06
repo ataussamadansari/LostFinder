@@ -21,15 +21,19 @@ class ConversationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $viewer = $request->user();
         $conversations = $this->messageService->getUserConversations(
-            $request->user(),
+            $viewer,
             (int) $request->query('per_page', 15)
         );
 
-        $formatted = collect($conversations->items())->map(function ($c) use ($request) {
+        $formatted = collect($conversations->items())->map(function ($c) use ($viewer) {
             $otherParticipants = $c->participants
-                ->where('id', '!=', $request->user()->id)
-                ->map(fn($p) => ['id' => $p->id, 'name' => $p->name]);
+                ->where('id', '!=', $viewer->id)
+                ->map(fn($p) => [
+                    'id' => $p->id,
+                    'name' => $this->formatParticipantName($viewer, $p, $c),
+                ]);
 
             return [
                 'uuid' => $c->uuid,
@@ -64,11 +68,12 @@ class ConversationController extends Controller
      */
     public function show(Request $request, string $uuid): JsonResponse
     {
-        $conversation = $this->messageService->getConversation($uuid, $request->user());
+        $viewer = $request->user();
+        $conversation = $this->messageService->getConversation($uuid, $viewer);
 
         $participants = $conversation->participants->map(fn($p) => [
             'id' => $p->id,
-            'name' => $p->name,
+            'name' => $this->formatParticipantName($viewer, $p, $conversation),
             'role' => $p->role,
         ]);
 
@@ -81,6 +86,34 @@ class ConversationController extends Controller
             'participants' => $participants,
             'created_at' => $conversation->created_at?->toIso8601String(),
         ], 'Conversation details retrieved successfully.');
+    }
+
+    /**
+     * Format participant name respecting privacy and zero-PII sharing preferences.
+     */
+    protected function formatParticipantName(\App\Models\User $viewer, \App\Models\User $participant, \App\Models\Conversation $conversation): string
+    {
+        if ($viewer->id === $participant->id || $viewer->isAdmin() || $viewer->hasPermission('lost_items.view')) {
+            return $participant->name;
+        }
+
+        // If viewer is driver and participant is passenger/tourist
+        if ($participant->role === 'tourist' && $viewer->driver) {
+            $journeyId = $conversation->journey_id;
+            if ($journeyId) {
+                $journeyPassenger = \App\Models\JourneyPassenger::where('journey_id', $journeyId)
+                    ->where('passenger_id', $participant->id)
+                    ->first();
+
+                if ($journeyPassenger && $journeyPassenger->share_details) {
+                    return $participant->name;
+                }
+            }
+
+            return 'Passenger (' . substr($participant->name ?? 'User', 0, 1) . '.)';
+        }
+
+        return $participant->name;
     }
 
     /**

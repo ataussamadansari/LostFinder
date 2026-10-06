@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Events\MessageRead;
 use App\Events\MessageSent;
 use App\Models\Conversation;
+use App\Models\Media;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\User;
@@ -83,6 +84,22 @@ class MessageService
             throw new \DomainException('Message body cannot be empty.');
         }
 
+        if ($messageType === 'image' && empty($data['media_id'])) {
+            throw new \DomainException('An image attachment is required for image messages.');
+        }
+
+        // Validate media ownership if attachment supplied
+        if (!empty($data['media_id'])) {
+            $media = Media::find($data['media_id']);
+            if (!$media) {
+                throw new \DomainException('Media item not found.');
+            }
+
+            if (!$sender->isAdmin() && $media->uploaded_by !== $sender->id) {
+                throw new \DomainException('Unauthorized to attach this media item.');
+            }
+        }
+
         return DB::transaction(function () use ($conversation, $sender, $data, $messageType, $body) {
             $message = Message::create([
                 'conversation_id' => $conversation->id,
@@ -107,28 +124,30 @@ class MessageService
             // Broadcast message via WebSockets
             broadcast(new MessageSent($message))->toOthers();
 
-            // Dispatch push notification to other participants
-            $recipients = $conversation->participants()
-                ->where('users.id', '!=', $sender->id)
-                ->get();
+            // Dispatch push notifications asynchronously after transaction commits
+            DB::afterCommit(function () use ($conversation, $sender, $messageType, $body) {
+                $recipients = $conversation->participants()
+                    ->where('users.id', '!=', $sender->id)
+                    ->get();
 
-            foreach ($recipients as $recipient) {
-                $notificationBody = ($messageType === 'image')
-                    ? 'Shared an image.'
-                    : (strlen($body) > 60 ? substr($body, 0, 57) . '...' : $body);
+                foreach ($recipients as $recipient) {
+                    $notificationBody = ($messageType === 'image')
+                        ? 'Shared an image.'
+                        : (strlen($body) > 60 ? substr($body, 0, 57) . '...' : $body);
 
-                $this->notificationService->notifyUser(
-                    $recipient,
-                    'new_message',
-                    'New Message',
-                    $notificationBody,
-                    [
-                        'conversation_uuid' => $conversation->uuid,
-                        'ticket_id' => (string) $conversation->ticket_id,
-                        'sender_id' => (string) $sender->id,
-                    ]
-                );
-            }
+                    $this->notificationService->notifyUser(
+                        $recipient,
+                        'new_message',
+                        'New Message',
+                        $notificationBody,
+                        [
+                            'conversation_uuid' => $conversation->uuid,
+                            'ticket_id' => (string) $conversation->ticket_id,
+                            'sender_id' => (string) $sender->id,
+                        ]
+                    );
+                }
+            });
 
             return $message;
         });

@@ -403,4 +403,57 @@ class MessagingSystemTest extends TestCase
         $this->assertCount(1, $response->json('data.conversations'));
         $this->assertEquals($conversation->uuid, $response->json('data.conversations.0.uuid'));
     }
+
+    public function test_cannot_attach_unowned_media_to_message(): void
+    {
+        [$driverUser, $passengerUser, $conversation] = $this->createActiveConversation();
+
+        $stranger = User::create([
+            'phone' => '+919999988888',
+            'name' => 'Stranger KYC',
+            'role' => 'driver',
+            'status' => 'active',
+        ]);
+
+        // Stranger uploads private media
+        $strangerMedia = Media::create([
+            'disk' => 'private',
+            'path' => 'kyc/secret_passport.jpg',
+            'original_name' => 'secret_passport.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => 102400,
+            'visibility' => 'private',
+            'uploaded_by' => $stranger->id,
+        ]);
+
+        Sanctum::actingAs($passengerUser);
+
+        $response = $this->postJson("/api/v1/conversations/{$conversation->uuid}/messages", [
+            'message_type' => 'image',
+            'media_id' => $strangerMedia->id,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Unauthorized to attach this media item.',
+            ]);
+    }
+
+    public function test_driver_sees_masked_passenger_name_if_details_not_shared(): void
+    {
+        [$driverUser, $passengerUser, $conversation] = $this->createActiveConversation();
+
+        Sanctum::actingAs($driverUser);
+
+        $response = $this->getJson("/api/v1/conversations/{$conversation->uuid}");
+        $response->assertStatus(200);
+
+        $passengerParticipant = collect($response->json('data.participants'))
+            ->firstWhere('id', $passengerUser->id);
+
+        $this->assertNotNull($passengerParticipant);
+        // Passenger name 'Neha Gupta' must be masked to 'Passenger (N.)'
+        $this->assertEquals('Passenger (N.)', $passengerParticipant['name']);
+    }
 }
