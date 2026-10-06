@@ -41,6 +41,8 @@ class PermissionService
             'reports.view',
             'reports.resolve',
             'audit_logs.view',
+            'settings.view',
+            'settings.update',
             'documents.view',
             'documents.verify',
             'documents.reject',

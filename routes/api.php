@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Admin\AuditLogAdminController;
 use App\Http\Controllers\Api\V1\Admin\QrAdminController;
 use App\Http\Controllers\Api\V1\Admin\ReportAdminController;
+use App\Http\Controllers\Api\V1\Admin\SettingAdminController;
 use App\Http\Controllers\Api\V1\Admin\VerificationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ConversationController;
@@ -14,11 +15,18 @@ use App\Http\Controllers\Api\V1\QrPublicController;
 use App\Http\Controllers\Api\V1\RatingController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SafetyController;
+use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    // ------------------------------------------------------------------------
+    // Public System Settings & Managed Features
+    // ------------------------------------------------------------------------
+    Route::get('/settings/public', [SettingController::class, 'publicSettings'])
+        ->middleware('throttle:60,1');
+
     // ------------------------------------------------------------------------
     // Public QR Resolution (Zero PII, Throttled)
     // ------------------------------------------------------------------------
@@ -236,6 +244,22 @@ Route::prefix('v1')->group(function () {
             // ----------------------------------------------------------------
             Route::get('/audit-logs', [AuditLogAdminController::class, 'index'])
                 ->middleware('permission:audit_logs.view');
+
+            // ----------------------------------------------------------------
+            // Admin System Settings & Feature Governance
+            // ----------------------------------------------------------------
+            Route::prefix('settings')->group(function () {
+                Route::get('/', [SettingAdminController::class, 'index'])
+                    ->middleware('permission:settings.view');
+                Route::patch('/', [SettingAdminController::class, 'update'])
+                    ->middleware('permission:settings.update');
+            });
+
+            // ----------------------------------------------------------------
+            // Admin Permissions & Capabilities Catalog
+            // ----------------------------------------------------------------
+            Route::get('/permissions', [SettingAdminController::class, 'permissions'])
+                ->middleware('permission:settings.view');
         });
     });
 });

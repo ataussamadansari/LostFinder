@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('journey_passengers', function (Blueprint $table) {
-            $table->boolean('share_details')->default(false)->after('status');
-            $table->json('shared_fields')->nullable()->after('share_details');
+            if (!Schema::hasColumn('journey_passengers', 'share_details')) {
+                $table->boolean('share_details')->default(false)->after('status');
+            }
+            if (!Schema::hasColumn('journey_passengers', 'shared_fields')) {
+                $table->json('shared_fields')->nullable()->after('share_details');
+            }
         });
     }
 
