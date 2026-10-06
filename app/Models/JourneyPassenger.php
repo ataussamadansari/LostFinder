@@ -16,6 +16,8 @@ class JourneyPassenger extends Model
         'connected_at',
         'disconnected_at',
         'status',
+        'share_details',
+        'shared_fields',
     ];
 
     protected function casts(): array
@@ -23,6 +25,8 @@ class JourneyPassenger extends Model
         return [
             'connected_at' => 'datetime',
             'disconnected_at' => 'datetime',
+            'share_details' => 'boolean',
+            'shared_fields' => 'array',
         ];
     }
 
